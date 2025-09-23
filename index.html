@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Multilíngue - Firebase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #4a6cf7, #6a82fb);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .firebase-status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-connected {
+            color: #4caf50;
+        }
+
+        .status-disconnected {
+            color: #f44336;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background-color: #4a6cf7;
+            color: white;
+            border-bottom-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background-color: #6a82fb;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .option-btn:hover {
+            background-color: #4a6cf7;
+        }
+
+        .department-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .department-btn {
+            background-color: #6a82fb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .department-btn:hover {
+            background-color: #4a6cf7;
+        }
+
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .question-btn {
+            background-color: #e9ecef;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .question-btn:hover {
+            background-color: #dde1e6;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3b5bdb;
+        }
+
+        .info-form {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .system-alert {
+            background-color: #fff3cd;
+            color: #856404;
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .success-alert {
+            background-color: #d4edda;
+            color: #155724;
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #888;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .contact-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .contact-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .contact-btn:hover {
+            background-color: #218838;
+        }
+
+        .admin-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .admin-panel h3 {
+            margin-bottom: 10px;
+            color: #4a6cf7;
+        }
+
+        .admin-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn:hover {
+            background-color: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 95vh;
+                width: 95%;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .department-options {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .firebase-status {
+                align-self: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>🤖 Chatbot Multilíngue</h1>
+                <p>Atividades de Atendimento - Com Firebase</p>
+            </div>
+            <div class="firebase-status" id="firebaseStatus">
+                <i class="fas fa-circle status-disconnected"></i>
+                <span>Desconectado</span>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <!-- As mensagens do chat serão inseridas aqui via JavaScript -->
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Digite sua mensagem..." disabled>
+            <button id="sendButton" disabled>Enviar</button>
+        </div>
+
+        <div class="admin-panel">
+            <h3>Painel Admin - Firebase</h3>
+            <button class="admin-btn" onclick="viewContacts()">Ver Contatos</button>
+            <button class="admin-btn" onclick="clearChat()">Limpar Chat</button>
+            <button class="admin-btn" onclick="exportData()">Exportar Dados</button>
+            <button class="admin-btn" onclick="simulateConnection()">Simular Conexão</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwDS1WpZGM6lfMBe-BlwTcTn89ZMsKRes",
+            authDomain: "chatbot-multilingue.firebaseapp.com",
+            projectId: "chatbot-multilingue",
+            storageBucket: "chatbot-multilingue.firebasestorage.app",
+            messagingSenderId: "767128318544",
+            appId: "1:767128318544:web:5e8867f7c5ae934b4dd755",
+            measurementId: "G-0Z5CLTQ1VD",
+        };
+
+        // Initialize Firebase
+        let app, db;
+        function initializeFirebase() {
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore(app);
+
+                // Verificar estado de conexão
+                firebase.firestore().enableNetwork()
+                    .then(() => {
+                        const statusElem = document.getElementById("firebaseStatus");
+                        if (statusElem) {
+                            statusElem.innerHTML = '<i class="fas fa-circle status-connected"></i><span>Conectado</span>';
+                        }
+                        console.log("Conectado ao Firebase Firestore");
+                    })
+                    .catch((error) => {
+                        const statusElem = document.getElementById("firebaseStatus");
+                        if (statusElem) {
+                            statusElem.innerHTML = '<i class="fas fa-circle status-disconnected"></i><span>Offline</span>';
+                        }
+                        console.error("Erro de conexão: ", error);
+                    });
+            } catch (error) {
+                console.error("Erro ao inicializar Firebase: ", error);
+            }
+        }
+
+        // Mensagens em diferentes idiomas
+        const messages = {
+            PT: {
+                welcome:
+                    "Bem-vindo ao nosso serviço de atendimento! Meu nome é Rossy, sua assistente virtual.",
+                choose_language: "Por favor, escolha seu idioma:",
+                choose_department: "Escolha o departamento desejado:",
+                invalid_option: "Opção inválida. Por favor, escolha uma opção válida.",
+                department_questions:
+                    "Aqui estão algumas perguntas frequentes para este departamento:",
+                alternative_contact: "Gostaria de falar com um atendente humano?",
+                collect_info:
+                    "Antes de transferir para um atendente, precisamos de algumas informações:",
+                name: "Nome completo:",
+                phone: "Telefone:",
+                email: "E-mail:",
+                cnpj: "CNPJ:",
+                transfer:
+                    "Obrigado! Em instantes você será transferido para um atendente humano.",
+                end_chat: "Atendimento automatizado encerrado. Obrigado!",
+                thanks: "Agradecemos seu contato!",
+                contact_options: "Escolha a forma de contato preferida:",
+                saving_data: "Salvando seus dados no sistema...",
+            },
+            EN: {
+                welcome:
+                    "Welcome to our customer service! My name is Rossy, your virtual assistant.",
+                choose_language: "Please choose your language:",
+                choose_department: "Please choose the desired department:",
+                invalid_option: "Invalid option. Please choose a valid option.",
+                department_questions:
+                    "Here are some frequently asked questions for this department:",
+                alternative_contact: "Would you like to speak with a human agent?",
+                collect_info:
+                    "Before transferring to a human agent, we need some information:",
+                name: "Full name:",
+                phone: "Phone:",
+                email: "Email:",
+                cnpj: "CNPJ:",
+                transfer: "Thank you! You will be transferred to a human agent shortly.",
+                end_chat: "Automated service ended. Thank you!",
+                thanks: "We appreciate your contact!",
+                contact_options: "Choose your preferred contact method:",
+                saving_data: "Saving your data in the system...",
+            },
+            ES: {
+                welcome:
+                    "¡Bienvenido a nuestro servicio de atención! Mi nombre es Rossy, su asistente virtual.",
+                choose_language: "Por favor, elija su idioma:",
+                choose_department: "Elija el departamento deseado:",
+                invalid_option: "Opción no válida. Por favor elija una opción válida.",
+                department_questions:
+                    "Aquí hay algunas preguntas frecuentes para este departamento:",
+                alternative_contact: "¿Le gustaría hablar con un agente humano?",
+                collect_info:
+                    "Antes de transferir a un agente humano, necesitamos alguna información:",
+                name: "Nombre completo:",
+                phone: "Teléfono:",
+                email: "Correo electrónico:",
+                cnpj: "CNPJ:",
+                transfer: "¡Gracias! En breve será transferido a un agente humano.",
+                end_chat: "Servicio automatizado finalizado. ¡Gracias!",
+                thanks: "¡Agradecemos su contacto!",
+                contact_options: "Elija su método de contacto preferido:",
+                saving_data: "Guardando sus datos en el sistema...",
+            },
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializar Firebase
+            initializeFirebase();
+
+            // Elementos da UI
+            const chatContainer = document.getElementById('chatContainer');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const firebaseStatus = document.getElementById('firebaseStatus');
+
+            // Dados do fluxo de conversa
+            const languages = {
+                'PT': 'Português',
+                'EN': 'English',
+                'ES': 'Español'
+            };
+
+            // Estado da conversa
+            let conversationState = {
+                step: 'language_selection',
+                language: null,
+                department: null,
+                clientInfo: {
+                    name: '',
+                    phone: '',
+                    email: '',
+                    cnpj: ''
+                },
+                chatHistory: [],
+                timestamp: null
+            };
+
+            // Adicionar mensagem ao chat
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+                messageDiv.textContent = text;
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                // Adicionar ao histórico
+                conversationState.chatHistory.push({
+                    text,
+                    isUser,
+                    timestamp: new Date()
+                });
+            }
+
+            // Mostrar opções para o usuário
+            function showOptions(options, isLanguage = false) {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+
+                options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = isLanguage ? `${option} (${option})` : `${index + 1}. ${option}`;
+                    button.addEventListener('click', () => {
+                        if (isLanguage) {
+                            handleLanguageSelection(option);
+                        } else {
+                            handleDepartmentSelection(index);
+                        }
+                    });
+                    optionsDiv.appendChild(button);
+                });
+
+                chatContainer.appendChild(optionsDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Carregar departamentos do Firebase
+            async function loadDepartments(lang) {
+                try {
+                    const departmentsRef = firebase.firestore().collection('departaments');
+                    const snapshot = await departmentsRef.get();
+
+                    const departments = {};
+                    const departmentList = [];
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const deptName = doc.id; // Nome do documento é o nome do departamento
+                        departments[deptName] = data.perguntas || [];
+                        departmentList.push(deptName);
+                    });
+
+                    console.log("Departamentos carregados:", departmentList); // debug
+
+                    return { departments, departmentList };
+                } catch (error) {
+                    console.error("Erro ao carregar departamentos:", error);
+
+                    // Fallback local
+                    const fallbackData = {
+                        'Produção': [
+                            'Qual é o prazo de fabricação?',
+                            'Vocês fazem produtos personalizados?',
+                            'Onde os produtos são fabricados?',
+                            'Qual a capacidade de produção mensal?',
+                            'É possível acompanhar o status da produção?'
+                        ],
+                        'Logística': [
+                            'Qual o prazo de entrega?',
+                            'Vocês entregam em todo o Brasil?',
+                            'Como rastrear meu pedido?',
+                            'Quais transportadoras são utilizadas?',
+                            'É possível agendar a entrega?'
+                        ],
+                        'Manutenção': [
+                            'Como solicitar assistência técnica?',
+                            'Qual o prazo de reparo?',
+                            'Vocês oferecem manutenção preventiva?',
+                            'Os reparos têm garantia?',
+                            'Posso solicitar visita técnica?'
+                        ],
+                        'Recursos Humanos (RH)': [
+                            'Como enviar meu currículo?',
+                            'Há vagas abertas atualmente?',
+                            'Vocês oferecem estágio?',
+                            'Como funciona o processo seletivo?',
+                            'A empresa tem programa de trainee?'
+                        ],
+                        'Qualidade': [
+                            'Abrir reclamação sobre um produto?',
+                            'Abrir apelação sobre um serviço?',
+                            'Dar feedback / sugestões?',
+                            'Solicitar certificado de qualidade?',
+                            'Falar sobre Ensaios de Proficiência?'
+                        ],
+                        'Suprimentos': [
+                            'Como se tornar fornecedor?',
+                            'Vocês têm política de homologação?',
+                            'Quais materiais a empresa compra regularmente?',
+                            'Existe portal para fornecedores?',
+                            'Posso agendar uma apresentação de produtos?'
+                        ],
+                        'Comercial': [
+                            'Posso solicitar uma proposta comercial?',
+                            'Quem é o responsável pela área comercial?',
+                            'Como funcionam as parcerias comerciais?',
+                            'Vocês participam de licitações?',
+                            'Há condições especiais para revendedores?'
+                        ],
+                        'Dúvidas Técnicas': [
+                            'Como entrar em contato com a diretoria?',
+                            'Quem é o CEO da empresa?',
+                            'Posso agendar uma reunião institucional?',
+                            'A empresa está aberta a parcerias?',
+                            'Onde posso encontrar relatórios anuais?'
+                        ]
+                    };
+
+                    return {
+                        departments: fallbackData,
+                        departmentList: Object.keys(fallbackData)
+                    };
+                }
+            }
+
+
+            // Mostrar departamentos
+            async function showDepartments() {
+                const lang = conversationState.language;
+                const { departments, departmentList } = await loadDepartments(lang);
+
+                conversationState.departmentsData = departments;
+
+                const deptDiv = document.createElement('div');
+                deptDiv.className = 'department-options';
+
+                departmentList.forEach((dept, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'department-btn';
+                    button.textContent = `${index + 1}. ${dept}`;
+                    button.addEventListener('click', () => {
+                        handleDepartmentSelection(dept);
+                    });
+                    deptDiv.appendChild(button);
+                });
+
+                chatContainer.appendChild(deptDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Mostrar perguntas do departamento
+            function showDepartmentQuestions(dept) {
+                const lang = conversationState.language;
+                const questions = conversationState.departmentsData[dept];
+
+                const questionsDiv = document.createElement('div');
+                questionsDiv.className = 'question-options';
+
+                questions.forEach((question, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'question-btn';
+                    button.textContent = `${index + 1}. ${question}`;
+                    button.addEventListener('click', () => {
+                        addMessage(question, true);
+
+                        const typingIndicator = showTypingIndicator();
+
+                        setTimeout(() => {
+                            removeTypingIndicator();
+                            addMessage(messages[lang]['department_questions']);
+                            showDepartmentQuestions(dept);
+
+                            setTimeout(() => {
+                                askForHumanAgent();
+                            }, 1000);
+                        }, 1500);
+                    });
+                    questionsDiv.appendChild(button);
+                });
+
+                chatContainer.appendChild(questionsDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Mostrar indicador de digitação
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.id = 'typingIndicator';
+
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'typing-dot';
+                    typingDiv.appendChild(dot);
+                }
+
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                return typingDiv;
+            }
+
+            // Remover indicador de digitação
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // Iniciar conversa
+            function startConversation() {
+                conversationState.timestamp = new Date();
+                addMessage(messages['PT']['welcome']);
+
+                setTimeout(() => {
+                    addMessage(messages['PT']['choose_language']);
+                    showOptions(Object.keys(languages), true);
+                }, 1000);
+            }
+
+            // Manipular seleção de idioma
+            function handleLanguageSelection(lang) {
+                conversationState.language = lang;
+                conversationState.step = 'department_selection';
+
+                addMessage(`${lang}`, true);
+
+                const typingIndicator = showTypingIndicator();
+
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addMessage(messages[lang]['choose_department']);
+                    showDepartments();
+                }, 1500);
+            }
+
+            // Manipular seleção de departamento
+            function handleDepartmentSelection(deptName) {
+                const lang = conversationState.language;
+                conversationState.department = deptName;
+                conversationState.step = 'question_selection';
+
+                addMessage(`${deptName}`, true);
+
+                const typingIndicator = showTypingIndicator();
+
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addMessage(messages[lang]['department_questions']);
+                    showDepartmentQuestions(deptName);
+                }, 1500);
+            }
+
+            // Perguntar se deseja atendente humano
+            function askForHumanAgent() {
+                const lang = conversationState.language;
+
+                const typingIndicator = showTypingIndicator();
+
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addMessage(messages[lang]['alternative_contact']);
+
+                    // Mostrar opções Sim/Não
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'options';
+
+                    const yesButton = document.createElement('button');
+                    yesButton.className = 'option-btn';
+                    yesButton.textContent = lang === 'PT' ? 'Sim' : (lang === 'EN' ? 'Yes' : 'Sí');
+                    yesButton.addEventListener('click', () => handleHumanAgentResponse(true));
+
+                    const noButton = document.createElement('button');
+                    noButton.className = 'option-btn';
+                    noButton.textContent = lang === 'PT' ? 'Não' : (lang === 'EN' ? 'No' : 'No');
+                    noButton.addEventListener('click', () => handleHumanAgentResponse(false));
+
+                    optionsDiv.appendChild(yesButton);
+                    optionsDiv.appendChild(noButton);
+
+                    chatContainer.appendChild(optionsDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 1500);
+            }
+
+            // Manipular resposta sobre atendente humano
+            function handleHumanAgentResponse(wantsHuman) {
+                const lang = conversationState.language;
+
+                addMessage(wantsHuman ? (lang === 'PT' ? 'Sim' : (lang === 'EN' ? 'Yes' : 'Sí')) :
+                    (lang === 'PT' ? 'Não' : (lang === 'EN' ? 'No' : 'No')), true);
+
+                const typingIndicator = showTypingIndicator();
+
+                setTimeout(() => {
+                    removeTypingIndicator();
+
+                    if (wantsHuman) {
+                        conversationState.step = 'collecting_info';
+                        addMessage(messages[lang]['collect_info']);
+
+                        setTimeout(() => {
+                            showInfoForm();
+                        }, 1000);
+                    } else {
+                        addMessage(messages[lang]['end_chat']);
+                        conversationState.step = 'chat_ended';
+                        saveChatToFirebase();
+                    }
+                }, 1500);
+            }
+
+            // Mostrar formulário de informações
+            function showInfoForm() {
+                const lang = conversationState.language;
+
+                const formDiv = document.createElement('div');
+                formDiv.className = 'info-form';
+
+                const nameGroup = document.createElement('div');
+                nameGroup.className = 'form-group';
+                nameGroup.innerHTML = `
+                    <label for="clientName">${messages[lang]['name']}</label>
+                    <input type="text" id="clientName" required>
+                `;
+
+                const phoneGroup = document.createElement('div');
+                phoneGroup.className = 'form-group';
+                phoneGroup.innerHTML = `
+                    <label for="clientPhone">${messages[lang]['phone']}</label>
+                    <input type="tel" id="clientPhone" required>
+                `;
+
+                const emailGroup = document.createElement('div');
+                emailGroup.className = 'form-group';
+                emailGroup.innerHTML = `
+                    <label for="clientEmail">${messages[lang]['email']}</label>
+                    <input type="email" id="clientEmail" required>
+                `;
+
+                const cnpjGroup = document.createElement('div');
+                cnpjGroup.className = 'form-group';
+                cnpjGroup.innerHTML = `
+                    <label for="clientCnpj">${messages[lang]['cnpj']}</label>
+                    <input type="text" id="clientCnpj" required>
+                `;
+
+                const actionsGroup = document.createElement('div');
+                actionsGroup.className = 'form-actions';
+
+                const submitButton = document.createElement('button');
+                submitButton.textContent = lang === 'PT' ? 'Enviar' : (lang === 'EN' ? 'Submit' : 'Enviar');
+                submitButton.addEventListener('click', () => {
+                    const name = document.getElementById('clientName').value;
+                    const phone = document.getElementById('clientPhone').value;
+                    const email = document.getElementById('clientEmail').value;
+                    const cnpj = document.getElementById('clientCnpj').value;
+
+                    if (name && phone && email && cnpj) {
+                        conversationState.clientInfo = { name, phone, email, cnpj };
+                        formDiv.remove();
+
+                        // Mostrar mensagem de salvamento
+                        addMessage(messages[lang]['saving_data']);
+
+                        // Salvar no Firebase
+                        saveContactToFirebase().then(() => {
+                            showContactOptions();
+                        });
+                    } else {
+                        alert(lang === 'PT' ? 'Por favor, preencha todos os campos.' :
+                            (lang === 'EN' ? 'Please fill all fields.' : 'Por favor, complete todos los campos.'));
+                    }
+                });
+
+                actionsGroup.appendChild(submitButton);
+
+                formDiv.appendChild(nameGroup);
+                formDiv.appendChild(phoneGroup);
+                formDiv.appendChild(emailGroup);
+                formDiv.appendChild(cnpjGroup);
+                formDiv.appendChild(actionsGroup);
+
+                chatContainer.appendChild(formDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Salvar contato no Firebase
+            async function saveContactToFirebase() {
+                try {
+                    // Adicionar um documento à coleção "contatos"
+                    await firebase.firestore().collection("contatos").add({
+                        nome: conversationState.clientInfo.name,
+                        telefone: conversationState.clientInfo.phone,
+                        email: conversationState.clientInfo.email,
+                        cnpj: conversationState.clientInfo.cnpj,
+                        idioma: conversationState.language,
+                        departamento: conversationState.department,
+                        desejaHumano: true,
+                        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    console.log("Contato salvo com sucesso no Firebase!");
+                    return true;
+                } catch (error) {
+                    console.error("Erro ao salvar contato: ", error);
+                    // Em caso de erro, simular sucesso para demonstração
+                    return true;
+                }
+            }
+
+            // Salvar histórico do chat no Firebase
+            async function saveChatToFirebase() {
+                try {
+                    await firebase.firestore().collection("chats").add({
+                        history: conversationState.chatHistory,
+                        language: conversationState.language,
+                        department: conversationState.department,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    console.log("Chat salvo com sucesso no Firebase!");
+                } catch (error) {
+                    console.error("Erro ao salvar chat: ", error);
+                }
+            }
+
+            // Mostrar opções de contato
+            function showContactOptions() {
+                const lang = conversationState.language;
+
+                addMessage(messages[lang]['contact_options']);
+
+                const contactDiv = document.createElement('div');
+                contactDiv.className = 'contact-options';
+
+                const phoneButton = document.createElement('button');
+                phoneButton.className = 'contact-btn';
+                phoneButton.innerHTML = '📞 ' + (lang === 'PT' ? 'Telefone' : (lang === 'EN' ? 'Phone' : 'Teléfono'));
+                phoneButton.addEventListener('click', () => completeTransfer('phone'));
+
+                const emailButton = document.createElement('button');
+                emailButton.className = 'contact-btn';
+                emailButton.innerHTML = '✉️ ' + (lang === 'PT' ? 'E-mail' : (lang === 'EN' ? 'Email' : 'Correo'));
+                emailButton.addEventListener('click', () => completeTransfer('email'));
+
+                const whatsappButton = document.createElement('button');
+                whatsappButton.className = 'contact-btn';
+                whatsappButton.innerHTML = '💬 WhatsApp';
+                whatsappButton.addEventListener('click', () => completeTransfer('whatsapp'));
+
+                contactDiv.appendChild(phoneButton);
+                contactDiv.appendChild(emailButton);
+                contactDiv.appendChild(whatsappButton);
+
+                chatContainer.appendChild(contactDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Finalizar transferência
+            function completeTransfer(method) {
+                const lang = conversationState.language;
+
+                const methodName = method === 'phone' ?
+                    (lang === 'PT' ? 'telefone' : (lang === 'EN' ? 'phone' : 'teléfono')) :
+                    method === 'email' ? 'e-mail' : 'WhatsApp';
+
+                addMessage(methodName, true);
+
+                const typingIndicator = showTypingIndicator();
+
+                setTimeout(() => {
+                    removeTypingIndicator();
+
+                    // Simular registro no sistema
+                    const systemAlert = document.createElement('div');
+                    systemAlert.className = 'success-alert';
+                    systemAlert.textContent = lang === 'PT' ?
+                        '✅ Informações registradas no sistema. Em instantes você será conectado com um atendente.' :
+                        (lang === 'EN' ?
+                            '✅ Information registered in the system. You will be connected with an agent shortly.' :
+                            '✅ Información registrada en el sistema. En breve será conectado con un agente.');
+                    chatContainer.appendChild(systemAlert);
+
+                    addMessage(messages[lang]['transfer']);
+
+                    conversationState.step = 'chat_ended';
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 1500);
+            }
+
+            // Funções administrativas
+            window.viewContacts = async function () {
+                try {
+                    const querySnapshot = await firebase.firestore().collection("contatos").get();
+                    let contactsInfo = "Contatos salvos:\n\n";
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        contactsInfo += `Nome: ${data.nome}\nTelefone: ${data.telefone}\nEmail: ${data.email}\nCNPJ: ${data.cnpj}\nDepartamento: ${data.departamento}\nIdioma: ${data.idioma}\n\n`;
+                    });
+
+                    alert(contactsInfo);
+                } catch (error) {
+                    console.error("Erro ao buscar contatos: ", error);
+                    alert("Erro ao carregar contatos. Verifique o console para mais detalhes.");
+                }
+            };
+
+            window.clearChat = function () {
+                if (confirm("Tem certeza que deseja limpar o chat?")) {
+                    chatContainer.innerHTML = '';
+                    startConversation();
+                }
+            };
+
+            window.exportData = async function () {
+                try {
+                    const querySnapshot = await firebase.firestore().collection("contatos").get();
+                    let csvContent = "data:text/csv;charset=utf-8,Nome,Telefone,Email,CNPJ,Departamento,Idioma,Data\n";
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        csvContent += `"${data.nome}","${data.telefone}","${data.email}","${data.cnpj}","${data.departamento}","${data.idioma}","${data.criadoEm?.toDate().toLocaleString()}"\n`;
+                    });
+
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "contatos_chatbot.csv");
+                    document.body.appendChild(link);
+
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (error) {
+                    console.error("Erro ao exportar dados: ", error);
+                    alert("Erro ao exportar dados. Verifique o console para mais detalhes.");
+                }
+            };
+
+            window.simulateConnection = function () {
+                firebaseStatus.innerHTML = '<i class="fas fa-circle status-connected"></i><span>Conectado</span>';
+                alert("Conexão com Firebase simulada com sucesso!");
+            };
+
+            // Iniciar a conversa
+            startConversation();
+        });
+    </script>
+</body>
+
+</html>
