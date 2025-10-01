@@ -634,64 +634,194 @@
                     console.error("Erro ao carregar departamentos:", error);
 
                     // Fallback local
+                    // Fallback local multilíngue
                     const fallbackData = {
-                        'Produção': [
-                            'Qual é o prazo de fabricação?',
-                            'Vocês fazem produtos personalizados?',
-                            'Onde os produtos são fabricados?',
-                            'Qual a capacidade de produção mensal?',
-                            'É possível acompanhar o status da produção?'
-                        ],
-                        'Logística': [
-                            'Qual o prazo de entrega?',
-                            'Vocês entregam em todo o Brasil?',
-                            'Como rastrear meu pedido?',
-                            'Quais transportadoras são utilizadas?',
-                            'É possível agendar a entrega?'
-                        ],
-                        'Manutenção': [
-                            'Como solicitar assistência técnica?',
-                            'Qual o prazo de reparo?',
-                            'Vocês oferecem manutenção preventiva?',
-                            'Os reparos têm garantia?',
-                            'Posso solicitar visita técnica?'
-                        ],
-                        'Recursos Humanos (RH)': [
-                            'Como enviar meu currículo?',
-                            'Há vagas abertas atualmente?',
-                            'Vocês oferecem estágio?',
-                            'Como funciona o processo seletivo?',
-                            'A empresa tem programa de trainee?'
-                        ],
-                        'Qualidade': [
-                            'Abrir reclamação sobre um produto?',
-                            'Abrir apelação sobre um serviço?',
-                            'Dar feedback / sugestões?',
-                            'Solicitar certificado de qualidade?',
-                            'Falar sobre Ensaios de Proficiência?'
-                        ],
-                        'Suprimentos': [
-                            'Como se tornar fornecedor?',
-                            'Vocês têm política de homologação?',
-                            'Quais materiais a empresa compra regularmente?',
-                            'Existe portal para fornecedores?',
-                            'Posso agendar uma apresentação de produtos?'
-                        ],
-                        'Comercial': [
-                            'Posso solicitar uma proposta comercial?',
-                            'Quem é o responsável pela área comercial?',
-                            'Como funcionam as parcerias comerciais?',
-                            'Vocês participam de licitações?',
-                            'Há condições especiais para revendedores?'
-                        ],
-                        'Dúvidas Técnicas': [
-                            'Como entrar em contato com a diretoria?',
-                            'Quem é o CEO da empresa?',
-                            'Posso agendar uma reunião institucional?',
-                            'A empresa está aberta a parcerias?',
-                            'Onde posso encontrar relatórios anuais?'
-                        ]
+                        'Produção': {
+                            pt: [
+                                'Qual é o prazo de fabricação?',
+                                'Vocês fazem produtos personalizados?',
+                                'Onde os produtos são fabricados?',
+                                'Qual a capacidade de produção mensal?',
+                                'É possível acompanhar o status da produção?'
+                            ],
+                            es: [
+                                '¿Cuál es el plazo de fabricación?',
+                                '¿Ustedes hacen productos personalizados?',
+                                '¿Dónde se fabrican los productos?',
+                                '¿Cuál es la capacidad de producción mensual?',
+                                '¿Es posible seguir el estado de la producción?'
+                            ],
+                            en: [
+                                'What is the manufacturing lead time?',
+                                'Do you make customized products?',
+                                'Where are the products manufactured?',
+                                'What is the monthly production capacity?',
+                                'Is it possible to track production status?'
+                            ]
+                        },
+                        'Logística': {
+                            pt: [
+                                'Qual o prazo de entrega?',
+                                'Vocês entregam em todo o Brasil?',
+                                'Como rastrear meu pedido?',
+                                'Quais transportadoras são utilizadas?',
+                                'É possível agendar a entrega?'
+                            ],
+                            es: [
+                                '¿Cuál es el plazo de entrega?',
+                                '¿Entregan en todo Brasil?',
+                                '¿Cómo rastrear mi pedido?',
+                                '¿Qué transportistas utilizan?',
+                                '¿Es posible programar la entrega?'
+                            ],
+                            en: [
+                                'What is the delivery time?',
+                                'Do you deliver throughout Brazil?',
+                                'How can I track my order?',
+                                'Which carriers are used?',
+                                'Is it possible to schedule delivery?'
+                            ]
+                        },
+                        'Manutenção': {
+                            pt: [
+                                'Como solicitar assistência técnica?',
+                                'Qual o prazo de reparo?',
+                                'Vocês oferecem manutenção preventiva?',
+                                'Os reparos têm garantia?',
+                                'Posso solicitar visita técnica?'
+                            ],
+                            es: [
+                                '¿Cómo solicitar asistencia técnica?',
+                                '¿Cuál es el plazo de reparación?',
+                                '¿Ofrecen mantenimiento preventivo?',
+                                '¿Las reparaciones tienen garantía?',
+                                '¿Puedo solicitar una visita técnica?'
+                            ],
+                            en: [
+                                'How to request technical support?',
+                                'What is the repair time?',
+                                'Do you offer preventive maintenance?',
+                                'Do repairs come with warranty?',
+                                'Can I request a technical visit?'
+                            ]
+                        },
+                        'Recursos Humanos (RH)': {
+                            pt: [
+                                'Como enviar meu currículo?',
+                                'Há vagas abertas atualmente?',
+                                'Vocês oferecem estágio?',
+                                'Como funciona o processo seletivo?',
+                                'A empresa tem programa de trainee?'
+                            ],
+                            es: [
+                                '¿Cómo enviar mi currículum?',
+                                '¿Hay vacantes abiertas actualmente?',
+                                '¿Ofrecen pasantías?',
+                                '¿Cómo funciona el proceso de selección?',
+                                '¿La empresa tiene programa de trainees?'
+                            ],
+                            en: [
+                                'How to send my resume?',
+                                'Are there open positions currently?',
+                                'Do you offer internships?',
+                                'How does the selection process work?',
+                                'Does the company have a trainee program?'
+                            ]
+                        },
+                        'Qualidade': {
+                            pt: [
+                                'Abrir reclamação sobre um produto?',
+                                'Abrir apelação sobre um serviço?',
+                                'Dar feedback / sugestões?',
+                                'Solicitar certificado de qualidade?',
+                                'Falar sobre Ensaios de Proficiência?'
+                            ],
+                            es: [
+                                '¿Abrir una queja sobre un producto?',
+                                '¿Abrir una apelación sobre un servicio?',
+                                '¿Dar retroalimentación / sugerencias?',
+                                '¿Solicitar un certificado de calidad?',
+                                '¿Hablar sobre Ensayos de Proficiencia?'
+                            ],
+                            en: [
+                                'Open a complaint about a product?',
+                                'Open an appeal about a service?',
+                                'Provide feedback / suggestions?',
+                                'Request a quality certificate?',
+                                'Talk about Proficiency Testing?'
+                            ]
+                        },
+                        'Suprimentos': {
+                            pt: [
+                                'Como se tornar fornecedor?',
+                                'Vocês têm política de homologação?',
+                                'Quais materiais a empresa compra regularmente?',
+                                'Existe portal para fornecedores?',
+                                'Posso agendar uma apresentação de produtos?'
+                            ],
+                            es: [
+                                '¿Cómo convertirse en proveedor?',
+                                '¿Tienen política de homologación?',
+                                '¿Qué materiales compra regularmente la empresa?',
+                                '¿Existe un portal para proveedores?',
+                                '¿Puedo programar una presentación de productos?'
+                            ],
+                            en: [
+                                'How to become a supplier?',
+                                'Do you have a supplier approval policy?',
+                                'Which materials does the company regularly purchase?',
+                                'Is there a supplier portal?',
+                                'Can I schedule a product presentation?'
+                            ]
+                        },
+                        'Comercial': {
+                            pt: [
+                                'Posso solicitar uma proposta comercial?',
+                                'Quem é o responsável pela área comercial?',
+                                'Como funcionam as parcerias comerciais?',
+                                'Vocês participam de licitações?',
+                                'Há condições especiais para revendedores?'
+                            ],
+                            es: [
+                                '¿Puedo solicitar una propuesta comercial?',
+                                '¿Quién es el responsable del área comercial?',
+                                '¿Cómo funcionan las asociaciones comerciales?',
+                                '¿Ustedes participan en licitaciones?',
+                                '¿Hay condiciones especiales para revendedores?'
+                            ],
+                            en: [
+                                'Can I request a commercial proposal?',
+                                'Who is responsible for the commercial area?',
+                                'How do commercial partnerships work?',
+                                'Do you participate in tenders?',
+                                'Are there special conditions for resellers?'
+                            ]
+                        },
+                        'Dúvidas Técnicas': {
+                            pt: [
+                                'Como entrar em contato com a diretoria?',
+                                'Quem é o CEO da empresa?',
+                                'Posso agendar uma reunião institucional?',
+                                'A empresa está aberta a parcerias?',
+                                'Onde posso encontrar relatórios anuais?'
+                            ],
+                            es: [
+                                '¿Cómo contactar a la dirección?',
+                                '¿Quién es el CEO de la empresa?',
+                                '¿Puedo programar una reunión institucional?',
+                                '¿La empresa está abierta a asociaciones?',
+                                '¿Dónde puedo encontrar los informes anuales?'
+                            ],
+                            en: [
+                                'How to contact the board of directors?',
+                                'Who is the CEO of the company?',
+                                'Can I schedule an institutional meeting?',
+                                'Is the company open to partnerships?',
+                                'Where can I find annual reports?'
+                            ]
+                        }
                     };
+
 
                     return {
                         departments: fallbackData,
