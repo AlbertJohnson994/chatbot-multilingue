@@ -424,6 +424,8 @@
             <button class="admin-btn" onclick="clearChat()">Limpar Chat</button>
             <button class="admin-btn" onclick="exportData()">Exportar Dados</button>
             <button class="admin-btn" onclick="simulateConnection()">Simular Conexão</button>
+            <button class="admin-btn" onclick="populateFirebase()">Popular Firebase</button>
+            <button class="admin-btn" onclick="debugDepartments()">Debug Departamentos</button>
         </div>
     </div>
 
@@ -441,17 +443,17 @@
             storageBucket: "chatbot-multilingue.firebasestorage.app",
             messagingSenderId: "767128318544",
             appId: "1:767128318544:web:5e8867f7c5ae934b4dd755",
-            measurementId: "G-0Z5CLTQ1VD",
+            measurementId: "G-0Z5CLTQ1VD"
         };
 
         // Initialize Firebase
         let app, db;
+
         function initializeFirebase() {
             try {
                 app = firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore(app);
 
-                // Verificar estado de conexão
                 firebase.firestore().enableNetwork()
                     .then(() => {
                         const statusElem = document.getElementById("firebaseStatus");
@@ -475,38 +477,31 @@
         // Mensagens em diferentes idiomas
         const messages = {
             PT: {
-                welcome:
-                    "Bem-vindo ao nosso serviço de atendimento! Meu nome é Rossy, sua assistente virtual.",
+                welcome: "Bem-vindo ao nosso serviço de atendimento! Meu nome é Rossy, sua assistente virtual.",
                 choose_language: "Por favor, escolha seu idioma:",
                 choose_department: "Escolha o departamento desejado:",
                 invalid_option: "Opção inválida. Por favor, escolha uma opção válida.",
-                department_questions:
-                    "Aqui estão algumas perguntas frequentes para este departamento:",
+                department_questions: "Aqui estão algumas perguntas frequentes para este departamento:",
                 alternative_contact: "Gostaria de falar com um atendente humano?",
-                collect_info:
-                    "Antes de transferir para um atendente, precisamos de algumas informações:",
+                collect_info: "Antes de transferir para um atendente, precisamos de algumas informações:",
                 name: "Nome completo:",
                 phone: "Telefone:",
                 email: "E-mail:",
                 cnpj: "CNPJ:",
-                transfer:
-                    "Obrigado! Em instantes você será transferido para um atendente humano.",
+                transfer: "Obrigado! Em instantes você será transferido para um atendente humano.",
                 end_chat: "Atendimento automatizado encerrado. Obrigado!",
                 thanks: "Agradecemos seu contato!",
                 contact_options: "Escolha a forma de contato preferida:",
                 saving_data: "Salvando seus dados no sistema...",
             },
             EN: {
-                welcome:
-                    "Welcome to our customer service! My name is Rossy, your virtual assistant.",
+                welcome: "Welcome to our customer service! My name is Rossy, your virtual assistant.",
                 choose_language: "Please choose your language:",
                 choose_department: "Please choose the desired department:",
                 invalid_option: "Invalid option. Please choose a valid option.",
-                department_questions:
-                    "Here are some frequently asked questions for this department:",
+                department_questions: "Here are some frequently asked questions for this department:",
                 alternative_contact: "Would you like to speak with a human agent?",
-                collect_info:
-                    "Before transferring to a human agent, we need some information:",
+                collect_info: "Before transferring to a human agent, we need some information:",
                 name: "Full name:",
                 phone: "Phone:",
                 email: "Email:",
@@ -518,16 +513,13 @@
                 saving_data: "Saving your data in the system...",
             },
             ES: {
-                welcome:
-                    "¡Bienvenido a nuestro servicio de atención! Mi nombre es Rossy, su asistente virtual.",
+                welcome: "¡Bienvenido a nuestro servicio de atención! Mi nombre es Rossy, su asistente virtual.",
                 choose_language: "Por favor, elija su idioma:",
                 choose_department: "Elija el departamento deseado:",
-                invalid_option: "Opción no válida. Por favor elija una opción válida.",
-                department_questions:
-                    "Aquí hay algunas preguntas frecuentes para este departamento:",
+                invalid_option: "Opción no válida. Por favor elija una opção válida.",
+                department_questions: "Aquí hay algunas preguntas frequentes para este departamento:",
                 alternative_contact: "¿Le gustaría hablar con un agente humano?",
-                collect_info:
-                    "Antes de transferir a un agente humano, necesitamos alguna información:",
+                collect_info: "Antes de transferir a un agente humano, necesitamos alguna información:",
                 name: "Nombre completo:",
                 phone: "Teléfono:",
                 email: "Correo electrónico:",
@@ -540,15 +532,316 @@
             },
         };
 
+        // Mapeamento completo de departamentos - ESTRUTURA CORRIGIDA
+        const departmentMapping = {
+            'Comercial': {
+                name: {
+                    PT: 'Comercial',
+                    ES: 'Comercial',
+                    EN: 'Commercial'
+                },
+                questions: {
+                    PT: [
+                        'Venda de Materiais de Referência Certificados (Padrões)',
+                        'Ensaios de Proficiência',
+                        'Preparação Sob Encomenda de Materiais de Referência Certificados (Padrões)',
+                        'Consulta sobre disponibilidade de produtos ou serviços.',
+                        'Preparação Física e Análises Químicas'
+                    ],
+                    ES: [
+                        'Venta de Materiales de Referencia Certificados (Estándares)',
+                        'Ensayos de Proficiencia',
+                        'Preparación por Encargo de Materiales de Referencia Certificados (Estándares)',
+                        'Consulta sobre disponibilidad de productos o servicios.',
+                        'Preparación Física y Análisis Químicos'
+                    ],
+                    EN: [
+                        'Sale of Certified Reference Materials (Standards)',
+                        'Proficiency Testing',
+                        'Custom Preparation of Certified Reference Materials (Standards)',
+                        'Inquiry about product or service availability.',
+                        'Physical Preparation and Chemical Analyses'
+                    ]
+                }
+            },
+            'Producao': {
+                name: {
+                    PT: 'Produção',
+                    ES: 'Producción',
+                    EN: 'Production'
+                },
+                questions: {
+                    PT: [
+                        'Qual é o prazo de fabricação?',
+                        'Vocês fazem produtos personalizados?',
+                        'Onde os produtos são fabricados?',
+                        'Qual a capacidade de produção mensal?',
+                        'É possível acompanhar o status da produção?'
+                    ],
+                    ES: [
+                        '¿Cuál es el plazo de fabricación?',
+                        '¿Ustedes hacen productos personalizados?',
+                        '¿Dónde se fabrican los productos?',
+                        '¿Cuál es la capacidad de producción mensual?',
+                        '¿Es posible seguir el estado de la producción?'
+                    ],
+                    EN: [
+                        'What is the manufacturing lead time?',
+                        'Do you make customized products?',
+                        'Where are the products manufactured?',
+                        'What is the monthly production capacity?',
+                        'Is it possible to track production status?'
+                    ]
+                }
+            },
+            'Logistica': {
+                name: {
+                    PT: 'Logística',
+                    ES: 'Logística',
+                    EN: 'Logistics'
+                },
+                questions: {
+                    PT: [
+                        'Qual o prazo de entrega?',
+                        'Vocês entregam em todo o Brasil?',
+                        'Como rastrear meu pedido?',
+                        'Quais transportadoras são utilizadas?',
+                        'É possível agendar a entrega?'
+                    ],
+                    ES: [
+                        '¿Cuál es el plazo de entrega?',
+                        '¿Entregan en todo Brasil?',
+                        '¿Cómo rastrear mi pedido?',
+                        '¿Qué transportistas utilizan?',
+                        '¿Es posible programar la entrega?'
+                    ],
+                    EN: [
+                        'What is the delivery time?',
+                        'Do you deliver throughout Brazil?',
+                        'How can I track my order?',
+                        'Which carriers are used?',
+                        'Is it possible to schedule delivery?'
+                    ]
+                }
+            },
+            'Manutencao': {
+                name: {
+                    PT: 'Manutenção',
+                    ES: 'Mantenimiento',
+                    EN: 'Maintenance'
+                },
+                questions: {
+                    PT: [
+                        'Como solicitar assistência técnica?',
+                        'Qual o prazo de reparo?',
+                        'Vocês oferecem manutenção preventiva?',
+                        'Os reparos têm garantia?',
+                        'Posso solicitar visita técnica?'
+                    ],
+                    ES: [
+                        '¿Cómo solicitar asistencia técnica?',
+                        '¿Cuál es el plazo de reparación?',
+                        '¿Ofrecen mantenimiento preventivo?',
+                        '¿Las reparaciones tienen garantía?',
+                        '¿Puedo solicitar una visita técnica?'
+                    ],
+                    EN: [
+                        'How to request technical support?',
+                        'What is the repair time?',
+                        'Do you offer preventive maintenance?',
+                        'Do repairs come with warranty?',
+                        'Can I request a technical visit?'
+                    ]
+                }
+            },
+            'RecursosHumanos': {
+                name: {
+                    PT: 'Recursos Humanos (RH)',
+                    ES: 'Recursos Humanos (RH)',
+                    EN: 'Human Resources (HR)'
+                },
+                questions: {
+                    PT: [
+                        'Como enviar meu currículo?',
+                        'Há vagas abertas atualmente?',
+                        'Vocês oferecem estágio?',
+                        'Como funciona o processo seletivo?',
+                        'A empresa tem programa de trainee?'
+                    ],
+                    ES: [
+                        '¿Cómo enviar mi currículum?',
+                        '¿Hay vacantes abiertas actualmente?',
+                        '¿Ofrecen pasantías?',
+                        '¿Cómo funciona el proceso de selección?',
+                        '¿La empresa tiene programa de trainees?'
+                    ],
+                    EN: [
+                        'How to send my resume?',
+                        'Are there open positions currently?',
+                        'Do you offer internships?',
+                        'How does the selection process work?',
+                        'Does the company have a trainee program?'
+                    ]
+                }
+            },
+            'Qualidade': {
+                name: {
+                    PT: 'Qualidade',
+                    ES: 'Calidad',
+                    EN: 'Quality'
+                },
+                questions: {
+                    PT: [
+                        'Abrir reclamação sobre um produto?',
+                        'Abrir apelação sobre um serviço?',
+                        'Dar feedback / sugestões?',
+                        'Solicitar certificado de qualidade?',
+                        'Falar sobre Ensaios de Proficiência?'
+                    ],
+                    ES: [
+                        '¿Abrir una queja sobre un producto?',
+                        '¿Abrir una apelación sobre un servicio?',
+                        '¿Dar retroalimentación / sugerencias?',
+                        '¿Solicitar un certificado de calidad?',
+                        '¿Hablar sobre Ensayos de Proficiencia?'
+                    ],
+                    EN: [
+                        'Open a complaint about a product?',
+                        'Open an appeal about a service?',
+                        'Provide feedback / suggestions?',
+                        'Request a quality certificate?',
+                        'Talk about Proficiency Testing?'
+                    ]
+                }
+            },
+            'Suprimentos': {
+                name: {
+                    PT: 'Suprimentos',
+                    ES: 'Suministros',
+                    EN: 'Supplies'
+                },
+                questions: {
+                    PT: [
+                        'Como se tornar fornecedor?',
+                        'Vocês têm política de homologação?',
+                        'Quais materiais a empresa compra regularmente?',
+                        'Existe portal para fornecedores?',
+                        'Posso agendar uma apresentação de produtos?'
+                    ],
+                    ES: [
+                        '¿Cómo convertirse en proveedor?',
+                        '¿Tienen política de homologación?',
+                        '¿Qué materiales compra regularmente la empresa?',
+                        '¿Existe un portal para proveedores?',
+                        '¿Puedo programar una presentación de productos?'
+                    ],
+                    EN: [
+                        'How to become a supplier?',
+                        'Do you have a supplier approval policy?',
+                        'Which materials does the company regularly purchase?',
+                        'Is there a supplier portal?',
+                        'Can I schedule a product presentation?'
+                    ]
+                }
+            },
+            'DuvidasTecnicas': {
+                name: {
+                    PT: 'Dúvidas Técnicas',
+                    ES: 'Dudas Técnicas',
+                    EN: 'Technical Questions'
+                },
+                questions: {
+                    PT: [
+                        'Como entrar em contato com a diretoria?',
+                        'Quem é o CEO da empresa?',
+                        'Posso agendar uma reunião institucional?',
+                        'A empresa está aberta a parcerias?',
+                        'Onde posso encontrar relatórios anuais?'
+                    ],
+                    ES: [
+                        '¿Cómo contactar a la dirección?',
+                        '¿Quién es el CEO de la empresa?',
+                        '¿Puedo programar una reunión institucional?',
+                        '¿La empresa está abierta a asociaciones?',
+                        '¿Dónde puedo encontrar los informes anuales?'
+                    ],
+                    EN: [
+                        'How to contact the board of directors?',
+                        'Who is the CEO of the company?',
+                        'Can I schedule an institutional meeting?',
+                        'Is the company open to partnerships?',
+                        'Where can I find annual reports?'
+                    ]
+                }
+            },
+            'Financeiro': {
+                name: {
+                    PT: 'Financeiro',
+                    ES: 'Financiero',
+                    EN: 'Financial'
+                },
+                questions: {
+                    PT: [
+                        'Quais são as formas de pagamento?',
+                        'Qual o prazo para aprovação de crédito?',
+                        'Como solicitar nota fiscal?',
+                        'Há descontos para pagamento à vista?',
+                        'Como funciona o parcelamento?'
+                    ],
+                    ES: [
+                        '¿Cuáles son las formas de pago?',
+                        '¿Cuál es el plazo para aprobación de crédito?',
+                        '¿Cómo solicitar factura?',
+                        '¿Hay descuentos para pago al contado?',
+                        '¿Cómo funciona el pago a plazos?'
+                    ],
+                    EN: [
+                        'What are the payment methods?',
+                        'What is the credit approval time?',
+                        'How to request an invoice?',
+                        'Are there discounts for cash payment?',
+                        'How does installment payment work?'
+                    ]
+                }
+            }
+        };
+
+        // Função para popular o Firebase com todos os departamentos
+        window.populateFirebase = async function () {
+            try {
+                for (const [deptId, deptData] of Object.entries(departmentMapping)) {
+                    await db.collection('departments').doc(deptId).set(deptData);
+                    console.log(`Departamento ${deptId} adicionado com sucesso!`);
+                    console.log('Dados:', deptData);
+                }
+                console.log('Todos os departamentos foram adicionados ao Firebase!');
+                alert('Firebase populado com sucesso! Recarregue a página.');
+            } catch (error) {
+                console.error('Erro ao adicionar departamentos:', error);
+                alert('Erro ao popular Firebase. Verifique o console.');
+            }
+        };
+
+        // Função de debug para verificar departamentos
+        window.debugDepartments = async function () {
+            try {
+                const snapshot = await db.collection('departments').get();
+                console.log('=== DEBUG DEPARTAMENTOS ===');
+                snapshot.forEach(doc => {
+                    console.log(`Departamento: ${doc.id}`, doc.data());
+                });
+                alert('Verifique o console para ver os dados dos departamentos');
+            } catch (error) {
+                console.error('Erro no debug:', error);
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializar Firebase
             initializeFirebase();
 
             // Elementos da UI
             const chatContainer = document.getElementById('chatContainer');
-            const userInput = document.getElementById('userInput');
-            const sendButton = document.getElementById('sendButton');
-            const firebaseStatus = document.getElementById('firebaseStatus');
 
             // Dados do fluxo de conversa
             const languages = {
@@ -569,7 +862,9 @@
                     cnpj: ''
                 },
                 chatHistory: [],
-                timestamp: null
+                timestamp: null,
+                departmentsData: null,
+                departmentList: null
             };
 
             // Adicionar mensagem ao chat
@@ -596,12 +891,18 @@
                 options.forEach((option, index) => {
                     const button = document.createElement('button');
                     button.className = 'option-btn';
-                    button.textContent = isLanguage ? `${option} (${option})` : `${index + 1}. ${option}`;
+                    button.textContent = isLanguage ? `${languages[option]} (${option})` : option;
                     button.addEventListener('click', () => {
                         if (isLanguage) {
                             handleLanguageSelection(option);
                         } else {
-                            handleDepartmentSelection(index);
+                            // Para departamentos, precisamos encontrar o ID correto
+                            const deptEntry = conversationState.departmentList.find(
+                                dept => dept.displayName === option
+                            );
+                            if (deptEntry) {
+                                handleDepartmentSelection(deptEntry.id, deptEntry.displayName);
+                            }
                         }
                     });
                     optionsDiv.appendChild(button);
@@ -611,10 +912,10 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
 
-            // Carregar departamentos do Firebase
+            // Carregar departamentos do Firebase - FUNÇÃO CORRIGIDA
             async function loadDepartments(lang) {
                 try {
-                    const departmentsRef = firebase.firestore().collection('departaments');
+                    const departmentsRef = firebase.firestore().collection('departments');
                     const snapshot = await departmentsRef.get();
 
                     const departments = {};
@@ -622,214 +923,56 @@
 
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        const deptName = doc.id; // Nome do documento é o nome do departamento
-                        departments[deptName] = data.perguntas || [];
-                        departmentList.push(deptName);
+                        const deptId = doc.id;
+
+                        console.log(`Carregando departamento: ${deptId}`, data);
+
+                        // Usar o nome traduzido do departamento
+                        const displayName = data.name && data.name[lang] ? data.name[lang] : deptId;
+
+                        // Obter perguntas no idioma correto
+                        const questions = data.questions && data.questions[lang] ? data.questions[lang] : [];
+
+                        console.log(`Perguntas para ${deptId} em ${lang}:`, questions);
+
+                        departments[deptId] = {
+                            displayName: displayName,
+                            questions: questions
+                        };
+                        departmentList.push({
+                            id: deptId,
+                            displayName: displayName
+                        });
                     });
 
-                    console.log("Departamentos carregados:", departmentList); // debug
-
+                    console.log("Departamentos carregados:", departmentList);
                     return { departments, departmentList };
+
                 } catch (error) {
                     console.error("Erro ao carregar departamentos:", error);
 
-                    // Fallback local
-                    // Fallback local multilíngue
-                    const fallbackData = {
-                        'Produção': {
-                            pt: [
-                                'Qual é o prazo de fabricação?',
-                                'Vocês fazem produtos personalizados?',
-                                'Onde os produtos são fabricados?',
-                                'Qual a capacidade de produção mensal?',
-                                'É possível acompanhar o status da produção?'
-                            ],
-                            es: [
-                                '¿Cuál es el plazo de fabricación?',
-                                '¿Ustedes hacen productos personalizados?',
-                                '¿Dónde se fabrican los productos?',
-                                '¿Cuál es la capacidad de producción mensual?',
-                                '¿Es posible seguir el estado de la producción?'
-                            ],
-                            en: [
-                                'What is the manufacturing lead time?',
-                                'Do you make customized products?',
-                                'Where are the products manufactured?',
-                                'What is the monthly production capacity?',
-                                'Is it possible to track production status?'
-                            ]
-                        },
-                        'Logística': {
-                            pt: [
-                                'Qual o prazo de entrega?',
-                                'Vocês entregam em todo o Brasil?',
-                                'Como rastrear meu pedido?',
-                                'Quais transportadoras são utilizadas?',
-                                'É possível agendar a entrega?'
-                            ],
-                            es: [
-                                '¿Cuál es el plazo de entrega?',
-                                '¿Entregan en todo Brasil?',
-                                '¿Cómo rastrear mi pedido?',
-                                '¿Qué transportistas utilizan?',
-                                '¿Es posible programar la entrega?'
-                            ],
-                            en: [
-                                'What is the delivery time?',
-                                'Do you deliver throughout Brazil?',
-                                'How can I track my order?',
-                                'Which carriers are used?',
-                                'Is it possible to schedule delivery?'
-                            ]
-                        },
-                        'Manutenção': {
-                            pt: [
-                                'Como solicitar assistência técnica?',
-                                'Qual o prazo de reparo?',
-                                'Vocês oferecem manutenção preventiva?',
-                                'Os reparos têm garantia?',
-                                'Posso solicitar visita técnica?'
-                            ],
-                            es: [
-                                '¿Cómo solicitar asistencia técnica?',
-                                '¿Cuál es el plazo de reparación?',
-                                '¿Ofrecen mantenimiento preventivo?',
-                                '¿Las reparaciones tienen garantía?',
-                                '¿Puedo solicitar una visita técnica?'
-                            ],
-                            en: [
-                                'How to request technical support?',
-                                'What is the repair time?',
-                                'Do you offer preventive maintenance?',
-                                'Do repairs come with warranty?',
-                                'Can I request a technical visit?'
-                            ]
-                        },
-                        'Recursos Humanos (RH)': {
-                            pt: [
-                                'Como enviar meu currículo?',
-                                'Há vagas abertas atualmente?',
-                                'Vocês oferecem estágio?',
-                                'Como funciona o processo seletivo?',
-                                'A empresa tem programa de trainee?'
-                            ],
-                            es: [
-                                '¿Cómo enviar mi currículum?',
-                                '¿Hay vacantes abiertas actualmente?',
-                                '¿Ofrecen pasantías?',
-                                '¿Cómo funciona el proceso de selección?',
-                                '¿La empresa tiene programa de trainees?'
-                            ],
-                            en: [
-                                'How to send my resume?',
-                                'Are there open positions currently?',
-                                'Do you offer internships?',
-                                'How does the selection process work?',
-                                'Does the company have a trainee program?'
-                            ]
-                        },
-                        'Qualidade': {
-                            pt: [
-                                'Abrir reclamação sobre um produto?',
-                                'Abrir apelação sobre um serviço?',
-                                'Dar feedback / sugestões?',
-                                'Solicitar certificado de qualidade?',
-                                'Falar sobre Ensaios de Proficiência?'
-                            ],
-                            es: [
-                                '¿Abrir una queja sobre un producto?',
-                                '¿Abrir una apelación sobre un servicio?',
-                                '¿Dar retroalimentación / sugerencias?',
-                                '¿Solicitar un certificado de calidad?',
-                                '¿Hablar sobre Ensayos de Proficiencia?'
-                            ],
-                            en: [
-                                'Open a complaint about a product?',
-                                'Open an appeal about a service?',
-                                'Provide feedback / suggestions?',
-                                'Request a quality certificate?',
-                                'Talk about Proficiency Testing?'
-                            ]
-                        },
-                        'Suprimentos': {
-                            pt: [
-                                'Como se tornar fornecedor?',
-                                'Vocês têm política de homologação?',
-                                'Quais materiais a empresa compra regularmente?',
-                                'Existe portal para fornecedores?',
-                                'Posso agendar uma apresentação de produtos?'
-                            ],
-                            es: [
-                                '¿Cómo convertirse en proveedor?',
-                                '¿Tienen política de homologación?',
-                                '¿Qué materiales compra regularmente la empresa?',
-                                '¿Existe un portal para proveedores?',
-                                '¿Puedo programar una presentación de productos?'
-                            ],
-                            en: [
-                                'How to become a supplier?',
-                                'Do you have a supplier approval policy?',
-                                'Which materials does the company regularly purchase?',
-                                'Is there a supplier portal?',
-                                'Can I schedule a product presentation?'
-                            ]
-                        },
-                        'Comercial': {
-                            pt: [
-                                'Posso solicitar uma proposta comercial?',
-                                'Quem é o responsável pela área comercial?',
-                                'Como funcionam as parcerias comerciais?',
-                                'Vocês participam de licitações?',
-                                'Há condições especiais para revendedores?'
-                            ],
-                            es: [
-                                '¿Puedo solicitar una propuesta comercial?',
-                                '¿Quién es el responsable del área comercial?',
-                                '¿Cómo funcionan las asociaciones comerciales?',
-                                '¿Ustedes participan en licitaciones?',
-                                '¿Hay condiciones especiales para revendedores?'
-                            ],
-                            en: [
-                                'Can I request a commercial proposal?',
-                                'Who is responsible for the commercial area?',
-                                'How do commercial partnerships work?',
-                                'Do you participate in tenders?',
-                                'Are there special conditions for resellers?'
-                            ]
-                        },
-                        'Dúvidas Técnicas': {
-                            pt: [
-                                'Como entrar em contato com a diretoria?',
-                                'Quem é o CEO da empresa?',
-                                'Posso agendar uma reunião institucional?',
-                                'A empresa está aberta a parcerias?',
-                                'Onde posso encontrar relatórios anuais?'
-                            ],
-                            es: [
-                                '¿Cómo contactar a la dirección?',
-                                '¿Quién es el CEO de la empresa?',
-                                '¿Puedo programar una reunión institucional?',
-                                '¿La empresa está abierta a asociaciones?',
-                                '¿Dónde puedo encontrar los informes anuales?'
-                            ],
-                            en: [
-                                'How to contact the board of directors?',
-                                'Who is the CEO of the company?',
-                                'Can I schedule an institutional meeting?',
-                                'Is the company open to partnerships?',
-                                'Where can I find annual reports?'
-                            ]
-                        }
-                    };
+                    // Fallback local - usar o mapeamento completo
+                    const departments = {};
+                    const departmentList = [];
 
+                    for (const [deptId, mapping] of Object.entries(departmentMapping)) {
+                        const displayName = mapping.name[lang] || deptId;
+                        const questions = mapping.questions[lang] || [];
 
-                    return {
-                        departments: fallbackData,
-                        departmentList: Object.keys(fallbackData)
-                    };
+                        departments[deptId] = {
+                            displayName: displayName,
+                            questions: questions
+                        };
+                        departmentList.push({
+                            id: deptId,
+                            displayName: displayName
+                        });
+                    }
+
+                    console.log("Usando fallback local:", departmentList);
+                    return { departments, departmentList };
                 }
             }
-
 
             // Mostrar departamentos
             async function showDepartments() {
@@ -837,49 +980,44 @@
                 const { departments, departmentList } = await loadDepartments(lang);
 
                 conversationState.departmentsData = departments;
+                conversationState.departmentList = departmentList;
 
-                const deptDiv = document.createElement('div');
-                deptDiv.className = 'department-options';
+                addMessage(messages[lang]['choose_department']);
 
-                departmentList.forEach((dept, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'department-btn';
-                    button.textContent = `${index + 1}. ${dept}`;
-                    button.addEventListener('click', () => {
-                        handleDepartmentSelection(dept);
-                    });
-                    deptDiv.appendChild(button);
-                });
-
-                chatContainer.appendChild(deptDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                // Criar array apenas com nomes para mostrar
+                const departmentNames = departmentList.map(dept => dept.displayName);
+                showOptions(departmentNames, false);
             }
 
-            // Mostrar perguntas do departamento
-            function showDepartmentQuestions(dept) {
+            // Mostrar perguntas do departamento - FUNÇÃO CORRIGIDA
+            function showDepartmentQuestions(deptId, deptName) {
                 const lang = conversationState.language;
-                const questions = conversationState.departmentsData[dept];
+                const departmentData = conversationState.departmentsData[deptId];
+
+                console.log(`Mostrando perguntas para ${deptId} (${deptName}) em ${lang}:`, departmentData);
+
+                if (!departmentData || !departmentData.questions || departmentData.questions.length === 0) {
+                    console.log(`Nenhuma pergunta encontrada para ${deptId}`);
+                    addMessage(`Não há perguntas disponíveis para ${deptName}.`);
+                    askForHumanAgent();
+                    return;
+                }
+
+                addMessage(messages[lang]['department_questions']);
 
                 const questionsDiv = document.createElement('div');
                 questionsDiv.className = 'question-options';
 
-                questions.forEach((question, index) => {
+                departmentData.questions.forEach((question, index) => {
                     const button = document.createElement('button');
                     button.className = 'question-btn';
                     button.textContent = `${index + 1}. ${question}`;
                     button.addEventListener('click', () => {
                         addMessage(question, true);
-
                         const typingIndicator = showTypingIndicator();
-
                         setTimeout(() => {
-                            removeTypingIndicator();
-                            addMessage(messages[lang]['department_questions']);
-                            showDepartmentQuestions(dept);
-
-                            setTimeout(() => {
-                                askForHumanAgent();
-                            }, 1000);
+                            removeTypingIndicator(typingIndicator);
+                            askForHumanAgent();
                         }, 1500);
                     });
                     questionsDiv.appendChild(button);
@@ -908,10 +1046,9 @@
             }
 
             // Remover indicador de digitação
-            function removeTypingIndicator() {
-                const typingIndicator = document.getElementById('typingIndicator');
-                if (typingIndicator) {
-                    typingIndicator.remove();
+            function removeTypingIndicator(typingIndicator) {
+                if (typingIndicator && typingIndicator.parentNode) {
+                    typingIndicator.parentNode.removeChild(typingIndicator);
                 }
             }
 
@@ -931,21 +1068,20 @@
                 conversationState.language = lang;
                 conversationState.step = 'department_selection';
 
-                addMessage(`${lang}`, true);
+                addMessage(`${languages[lang]}`, true);
 
                 const typingIndicator = showTypingIndicator();
 
                 setTimeout(() => {
-                    removeTypingIndicator();
-                    addMessage(messages[lang]['choose_department']);
+                    removeTypingIndicator(typingIndicator);
                     showDepartments();
                 }, 1500);
             }
 
             // Manipular seleção de departamento
-            function handleDepartmentSelection(deptName) {
+            function handleDepartmentSelection(deptId, deptName) {
                 const lang = conversationState.language;
-                conversationState.department = deptName;
+                conversationState.department = deptId;
                 conversationState.step = 'question_selection';
 
                 addMessage(`${deptName}`, true);
@@ -953,9 +1089,8 @@
                 const typingIndicator = showTypingIndicator();
 
                 setTimeout(() => {
-                    removeTypingIndicator();
-                    addMessage(messages[lang]['department_questions']);
-                    showDepartmentQuestions(deptName);
+                    removeTypingIndicator(typingIndicator);
+                    showDepartmentQuestions(deptId, deptName);
                 }, 1500);
             }
 
@@ -966,7 +1101,7 @@
                 const typingIndicator = showTypingIndicator();
 
                 setTimeout(() => {
-                    removeTypingIndicator();
+                    removeTypingIndicator(typingIndicator);
                     addMessage(messages[lang]['alternative_contact']);
 
                     // Mostrar opções Sim/Não
@@ -1001,15 +1136,12 @@
                 const typingIndicator = showTypingIndicator();
 
                 setTimeout(() => {
-                    removeTypingIndicator();
+                    removeTypingIndicator(typingIndicator);
 
                     if (wantsHuman) {
                         conversationState.step = 'collecting_info';
                         addMessage(messages[lang]['collect_info']);
-
-                        setTimeout(() => {
-                            showInfoForm();
-                        }, 1000);
+                        showInfoForm();
                     } else {
                         addMessage(messages[lang]['end_chat']);
                         conversationState.step = 'chat_ended';
@@ -1025,40 +1157,29 @@
                 const formDiv = document.createElement('div');
                 formDiv.className = 'info-form';
 
-                const nameGroup = document.createElement('div');
-                nameGroup.className = 'form-group';
-                nameGroup.innerHTML = `
+                formDiv.innerHTML = `
+                <div class="form-group">
                     <label for="clientName">${messages[lang]['name']}</label>
                     <input type="text" id="clientName" required>
-                `;
-
-                const phoneGroup = document.createElement('div');
-                phoneGroup.className = 'form-group';
-                phoneGroup.innerHTML = `
+                </div>
+                <div class="form-group">
                     <label for="clientPhone">${messages[lang]['phone']}</label>
                     <input type="tel" id="clientPhone" required>
-                `;
-
-                const emailGroup = document.createElement('div');
-                emailGroup.className = 'form-group';
-                emailGroup.innerHTML = `
+                </div>
+                <div class="form-group">
                     <label for="clientEmail">${messages[lang]['email']}</label>
                     <input type="email" id="clientEmail" required>
-                `;
-
-                const cnpjGroup = document.createElement('div');
-                cnpjGroup.className = 'form-group';
-                cnpjGroup.innerHTML = `
+                </div>
+                <div class="form-group">
                     <label for="clientCnpj">${messages[lang]['cnpj']}</label>
                     <input type="text" id="clientCnpj" required>
-                `;
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="submitInfo">${lang === 'PT' ? 'Enviar' : (lang === 'EN' ? 'Submit' : 'Enviar')}</button>
+                </div>
+            `;
 
-                const actionsGroup = document.createElement('div');
-                actionsGroup.className = 'form-actions';
-
-                const submitButton = document.createElement('button');
-                submitButton.textContent = lang === 'PT' ? 'Enviar' : (lang === 'EN' ? 'Submit' : 'Enviar');
-                submitButton.addEventListener('click', () => {
+                formDiv.querySelector('#submitInfo').addEventListener('click', () => {
                     const name = document.getElementById('clientName').value;
                     const phone = document.getElementById('clientPhone').value;
                     const email = document.getElementById('clientEmail').value;
@@ -1068,10 +1189,8 @@
                         conversationState.clientInfo = { name, phone, email, cnpj };
                         formDiv.remove();
 
-                        // Mostrar mensagem de salvamento
                         addMessage(messages[lang]['saving_data']);
 
-                        // Salvar no Firebase
                         saveContactToFirebase().then(() => {
                             showContactOptions();
                         });
@@ -1081,14 +1200,6 @@
                     }
                 });
 
-                actionsGroup.appendChild(submitButton);
-
-                formDiv.appendChild(nameGroup);
-                formDiv.appendChild(phoneGroup);
-                formDiv.appendChild(emailGroup);
-                formDiv.appendChild(cnpjGroup);
-                formDiv.appendChild(actionsGroup);
-
                 chatContainer.appendChild(formDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
@@ -1096,7 +1207,6 @@
             // Salvar contato no Firebase
             async function saveContactToFirebase() {
                 try {
-                    // Adicionar um documento à coleção "contatos"
                     await firebase.firestore().collection("contatos").add({
                         nome: conversationState.clientInfo.name,
                         telefone: conversationState.clientInfo.phone,
@@ -1112,7 +1222,6 @@
                     return true;
                 } catch (error) {
                     console.error("Erro ao salvar contato: ", error);
-                    // Em caso de erro, simular sucesso para demonstração
                     return true;
                 }
             }
@@ -1142,24 +1251,19 @@
                 const contactDiv = document.createElement('div');
                 contactDiv.className = 'contact-options';
 
-                const phoneButton = document.createElement('button');
-                phoneButton.className = 'contact-btn';
-                phoneButton.innerHTML = '📞 ' + (lang === 'PT' ? 'Telefone' : (lang === 'EN' ? 'Phone' : 'Teléfono'));
-                phoneButton.addEventListener('click', () => completeTransfer('phone'));
+                const contacts = [
+                    { type: 'phone', text: lang === 'PT' ? 'Telefone' : (lang === 'EN' ? 'Phone' : 'Teléfono'), icon: '📞' },
+                    { type: 'email', text: lang === 'PT' ? 'E-mail' : (lang === 'EN' ? 'Email' : 'Correo'), icon: '✉️' },
+                    { type: 'whatsapp', text: 'WhatsApp', icon: '💬' }
+                ];
 
-                const emailButton = document.createElement('button');
-                emailButton.className = 'contact-btn';
-                emailButton.innerHTML = '✉️ ' + (lang === 'PT' ? 'E-mail' : (lang === 'EN' ? 'Email' : 'Correo'));
-                emailButton.addEventListener('click', () => completeTransfer('email'));
-
-                const whatsappButton = document.createElement('button');
-                whatsappButton.className = 'contact-btn';
-                whatsappButton.innerHTML = '💬 WhatsApp';
-                whatsappButton.addEventListener('click', () => completeTransfer('whatsapp'));
-
-                contactDiv.appendChild(phoneButton);
-                contactDiv.appendChild(emailButton);
-                contactDiv.appendChild(whatsappButton);
+                contacts.forEach(contact => {
+                    const button = document.createElement('button');
+                    button.className = 'contact-btn';
+                    button.innerHTML = `${contact.icon} ${contact.text}`;
+                    button.addEventListener('click', () => completeTransfer(contact.type));
+                    contactDiv.appendChild(button);
+                });
 
                 chatContainer.appendChild(contactDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -1178,9 +1282,8 @@
                 const typingIndicator = showTypingIndicator();
 
                 setTimeout(() => {
-                    removeTypingIndicator();
+                    removeTypingIndicator(typingIndicator);
 
-                    // Simular registro no sistema
                     const systemAlert = document.createElement('div');
                     systemAlert.className = 'success-alert';
                     systemAlert.textContent = lang === 'PT' ?
@@ -1191,7 +1294,6 @@
                     chatContainer.appendChild(systemAlert);
 
                     addMessage(messages[lang]['transfer']);
-
                     conversationState.step = 'chat_ended';
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }, 1500);
@@ -1218,6 +1320,16 @@
             window.clearChat = function () {
                 if (confirm("Tem certeza que deseja limpar o chat?")) {
                     chatContainer.innerHTML = '';
+                    conversationState = {
+                        step: 'language_selection',
+                        language: null,
+                        department: null,
+                        clientInfo: { name: '', phone: '', email: '', cnpj: '' },
+                        chatHistory: [],
+                        timestamp: null,
+                        departmentsData: null,
+                        departmentList: null
+                    };
                     startConversation();
                 }
             };
@@ -1237,7 +1349,6 @@
                     link.setAttribute("href", encodedUri);
                     link.setAttribute("download", "contatos_chatbot.csv");
                     document.body.appendChild(link);
-
                     link.click();
                     document.body.removeChild(link);
                 } catch (error) {
@@ -1247,7 +1358,10 @@
             };
 
             window.simulateConnection = function () {
-                firebaseStatus.innerHTML = '<i class="fas fa-circle status-connected"></i><span>Conectado</span>';
+                const statusElem = document.getElementById("firebaseStatus");
+                if (statusElem) {
+                    statusElem.innerHTML = '<i class="fas fa-circle status-connected"></i><span>Conectado</span>';
+                }
                 alert("Conexão com Firebase simulada com sucesso!");
             };
 
