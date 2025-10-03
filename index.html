@@ -487,7 +487,7 @@
                 name: "Nome completo:",
                 phone: "Telefone:",
                 email: "E-mail:",
-                cnpj: "CNPJ:",
+                cnpj: "Número de Registro (Empresa / Pessoa Física):",
                 transfer: "Obrigado! Em instantes você será transferido para um atendente humano.",
                 end_chat: "Atendimento automatizado encerrado. Obrigado!",
                 thanks: "Agradecemos seu contato!",
@@ -505,7 +505,7 @@
                 name: "Full name:",
                 phone: "Phone:",
                 email: "Email:",
-                cnpj: "CNPJ:",
+                cnpj: "Registration Number (Company / Individual):",
                 transfer: "Thank you! You will be transferred to a human agent shortly.",
                 end_chat: "Automated service ended. Thank you!",
                 thanks: "We appreciate your contact!",
@@ -523,7 +523,7 @@
                 name: "Nombre completo:",
                 phone: "Teléfono:",
                 email: "Correo electrónico:",
-                cnpj: "CNPJ:",
+                cnpj: "Número de Registro (Empresa / Persona Física):",
                 transfer: "¡Gracias! En breve será transferido a un agente humano.",
                 end_chat: "Servicio automatizado finalizado. ¡Gracias!",
                 thanks: "¡Agradecemos su contacto!",
@@ -859,7 +859,7 @@
                     name: '',
                     phone: '',
                     email: '',
-                    cnpj: ''
+                    registeredNumber: ''
                 },
                 chatHistory: [],
                 timestamp: null,
@@ -1158,32 +1158,41 @@
                 formDiv.className = 'info-form';
 
                 formDiv.innerHTML = `
-                <div class="form-group">
-                    <label for="clientName">${messages[lang]['name']}</label>
-                    <input type="text" id="clientName" required>
-                </div>
-                <div class="form-group">
-                    <label for="clientPhone">${messages[lang]['phone']}</label>
-                    <input type="tel" id="clientPhone" required>
-                </div>
-                <div class="form-group">
-                    <label for="clientEmail">${messages[lang]['email']}</label>
-                    <input type="email" id="clientEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="clientCnpj">${messages[lang]['cnpj']}</label>
-                    <input type="text" id="clientCnpj" required>
-                </div>
-                <div class="form-actions">
-                    <button type="button" id="submitInfo">${lang === 'PT' ? 'Enviar' : (lang === 'EN' ? 'Submit' : 'Enviar')}</button>
-                </div>
+              <div class="form-group">
+                            <label for="clientName">${messages[lang]['name']}</label>
+                            <input type="text" id="clientName" placeholder="Eg: John Doe / Maria Silva" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientPhone">${messages[lang]['phone']}</label>
+                            <input type="tel" id="clientPhone" placeholder="Eg: +1 555 123 4567 / +55 31 99999-8888" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientEmail">${messages[lang]['email']}</label>
+                            <input type="email" id="clientEmail" placeholder="Eg: name@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientcnpj">${messages[lang]['cnpj']}</label>
+                            <input type="text" id="clientcnpj" 
+                                placeholder="Eg: CNPJ, CPF, VAT, RUC, NIF/CIF, RFC, TIN, ID etc." 
+                                required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="submitInfo">
+                                ${lang === 'PT' ? 'Enviar' : (lang === 'EN' ? 'Submit' : 'Enviar')}
+                            </button>
+                        </div>
+
             `;
 
                 formDiv.querySelector('#submitInfo').addEventListener('click', () => {
                     const name = document.getElementById('clientName').value;
                     const phone = document.getElementById('clientPhone').value;
                     const email = document.getElementById('clientEmail').value;
-                    const cnpj = document.getElementById('clientCnpj').value;
+                    const cnpj = document.getElementById('clientcnpj').value;
 
                     if (name && phone && email && cnpj) {
                         conversationState.clientInfo = { name, phone, email, cnpj };
